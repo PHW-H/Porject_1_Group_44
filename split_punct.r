@@ -6,9 +6,9 @@ a <- a[-((n-2909):n)] ## strip license
 # find words containting
 punctuation_marks <- c(",",";","!",":","\\?","\\.")
 
-for (i in 1:4) {
+for (i in 1:6) {
     n <- length(a)
-    c <- grep(punctuation_marks[i],a,fixed = TRUE)
+    c <- grep(punctuation_marks[i],a)
     lc <- length(c)
 
     if (lc>0){
@@ -30,11 +30,16 @@ for (i in 1:4) {
 
         #location of unsplit words
         nwl <- c(rcl,ccl,lcl) 
-        ns[ccl] <- punctuation_marks[i]
+        if (i==5){
+            ns[ccl] <- "?"} 
+            else if (i==6){
+                ns[ccl] <- "."}
+                else{
+                    ns[ccl] <- punctuation_marks[i]}
         ns[lcl] <- wrl[,1]
         ns[rcl] <- wrl[,2]
         ns[-nwl] <- a[-c]
+        a <- ns 
         rm(wrl)
         rm(wlr)
-        a <- ns 
         }}
