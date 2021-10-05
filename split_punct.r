@@ -3,6 +3,9 @@ a <- scan("1581-0.txt",what="character",skip=156)
 n <- length(a)
 a <- a[-((n-2909):n)] ## strip license
 
+#assign a value to m
+m <- 1000
+
 # find words containting
 punctuation_marks <- c(",",";","!",":","\\?","\\.")
 
@@ -39,20 +42,39 @@ for (i in 1:6) {
         ns[lcl] <- wrl[,1]
         ns[rcl] <- wrl[,2]
         ns[-nwl] <- a[-c]
-        a <- ns 
+        a <- ns
+
         rm(wrl)
         rm(wlr)
         }}
 a <- a[a != ""]
 
 #part question 6
-a <- tolower(a)
-un <- unique(a)
-c <- match((a),(un))
+
+#eliminate interpunction
+b <- a[a != ":"]
+b <- b[b != "?"]
+b <- b[b != "."]
+b <- b[b != ","]
+b <- b[b != ";"]
+b <- b[b != "!"]
+
+#remove capital letter
+b <- tolower(b)
+
+#create list of all different words in a
+un <- unique(b)
+
+#assign numbers to words
+c <- match((b),(un))
+#count thow often the words re-occur
 count <- tabulate(c)
 
-m <- 4
+#find how often the m most frequent word re-occur (in bbb)
 s_count <- sort(count)
-oc_m <- s_count[length(count)-m+1]
-common_word <- grep(oc_m)
+bbb <- s_count[(length(count)-m+1):length(count)]
+
+#find the most m commen used words
+common_words_loc <- count %in% bbb
+common_words <- un[common_words_loc]
 
