@@ -2,8 +2,8 @@
 
 a_index <- match(a_low, b)
 column_matrix <- cbind(a_index[-length(a_index)],a_index[-1])
-na_index <- which(is.na(rowSums(column_matrix)))
-word_pairs <- column_matrix[-na_index,]
+pair_index <- which(!is.na(rowSums(column_matrix)))
+word_pairs <- column_matrix[pair_index,]
 
 A <- matrix(0,m,m) # m is the number of common words aka length b
 for (count in 1:nrow(word_pairs)){
