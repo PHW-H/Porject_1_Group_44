@@ -52,13 +52,13 @@ a <- a[a != ""]
 #part question 6
 
 #remove capital letter
-b <- tolower(a)
+a_low <- tolower(a)
 
 #create list of all different words in a
-un <- unique(b)
+un <- unique(a_low)
 
 #assign numbers to words
-c <- match((b),(un))
+c <- match((a_low),(un))
 #count thow often the words re-occur
 count <- tabulate(c)
 
