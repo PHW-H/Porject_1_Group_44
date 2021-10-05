@@ -43,3 +43,16 @@ for (i in 1:6) {
         rm(wrl)
         rm(wlr)
         }}
+a <- a[a != ""]
+
+#part question 6
+a <- tolower(a)
+un <- unique(a)
+c <- match((a),(un))
+count <- tabulate(c)
+
+m <- 4
+s_count <- sort(count)
+oc_m <- s_count[length(count)-m+1]
+common_word <- grep(oc_m)
+
