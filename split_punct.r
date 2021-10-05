@@ -78,3 +78,5 @@ bbb <- s_count[(length(count)-m+1):length(count)]
 common_words_loc <- count %in% bbb
 common_words <- un[common_words_loc]
 
+b <- common_words
+
