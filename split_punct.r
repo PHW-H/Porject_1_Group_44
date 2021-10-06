@@ -9,45 +9,70 @@ m <- 1000
 # find words containting
 punctuation_marks <- c(",",";","!",":","\\?","\\.")
 
-for (i in 1:6) {
+split_punct <-function (a){
+for(i in 1:6) {# find and seperate the 6 different characters one by one
     n <- length(a)
-    c <- grep(punctuation_marks[i],a)
+    c <- grep(punctuation_marks[i],a) #find all locations of the ith punctuation mark
     lc <- length(c)
 
     if (lc>0){
-        #create empty string
+      # this makes sure only an attempt to sperate word from punctuation marks is done 
+      # when the text contains these punctuations marks
+        
+        #create empty string able to contain all of the string after the speration.
         ns <- rep("",2*lc+n)
         
-        #location of split words
+        # determin the location of split words
+        # three places are reserved for every interpunction mark
+        # one for the text connected to the right and left of the punctuations mark
+        # and one for the puncutation mark it self
         rcl <- c+2*(1:lc)
         ccl <- rcl-1
         lcl <- rcl-2
     
-        #split words
+        # split words with a punctuation mark in three
         wlr <- strsplit(a[c], punctuation_marks[i])
+
+        # create an empty string right of the punctuation mark it it does not exist
+        # so every word with an interpunction is split in the same format
         for (val in 1:lc) {
             if (length(wlr[[val]])<2) {
                 wlr[[val]] <- c(wlr[[val]],"")
                 }}
+
+        # make a matrix containing the text on the left and right of the interpunction 
         wrl <- matrix(unlist(wlr), ncol=2, byrow=TRUE)
 
-        #location of unsplit words
-        nwl <- c(rcl,ccl,lcl) 
+        # paste the interpunction marks used to split the words in the text at their propper locatoin
+        # to avoid the placement of "//" in th text ? and . have to be placed in a different way
+        # to do so the if statemetn is used
         if (i==5){
             ns[ccl] <- "?"} 
             else if (i==6){
                 ns[ccl] <- "."}
                 else{
                     ns[ccl] <- punctuation_marks[i]}
+        
+        # paste the word left of the interpunction marks in the propper location 
         ns[lcl] <- wrl[,1]
+        # paste the word right of the interpunction marks in the propper location 
         ns[rcl] <- wrl[,2]
+
+        # nwl contains all locations in the text reseved for words split by interpunction marks and interpunctions words
+        nwl <- c(rcl,ccl,lcl) 
+        # past all other words in the empty string
         ns[-nwl] <- a[-c]
+        # save the new string of words to a
         a <- ns
 
+        # reset variables needed for next next itteration
+        ##### i think this can be deleted #####
         rm(wrl)
         rm(wlr)
         }}
+# eliminate all empty entries in string a
 a <- a[a != ""]
+return(a)}
 
 #part question 6
 
@@ -105,4 +130,10 @@ for (temp in 2:50){
   prev_word_index <- chosen_word_index
 }
 
-print(b[end_text_index])
+cat(b[end_text_index])
+
+dif <- a==a_low
+loc_cap <- grep(FALSE,dif)
+cap_words <- a_low[dif]
+index_cap_vector <- match(a_low,cap_words)
+freq_cap <- tabulate(index_cap_vector)
