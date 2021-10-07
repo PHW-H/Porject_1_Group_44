@@ -152,11 +152,11 @@ for (count in 1:nrow(word_pairs)){
 #standardize each row of A by dividing each value by the row sum
 A <- t(apply(A, 1, function(x)(x/sum(x)))) 
 #there might be some rows whose row sum is 0
-#this means none of the common words follows the word corresponding to the row, dividing by zero results in NaN value
-#accordingly, all of the common words are equally likely to occur after that word
+#this means none of the common words follows the word corresponding to the row, dividing values by zero results in NaN value
+#in this case all of the common words are equally likely to occur after that word
 #so replace NaN values with 1/length(b)
 A <- gsub(NaN,1/m,A)
-#previous function turns A into a vector, so return A into matrix form again
+#previous function turns A into a vector, so turn A into matrix form again
 A <- t(matrix(A, ncol=m, byrow=TRUE))
 
 
@@ -164,7 +164,7 @@ A <- t(matrix(A, ncol=m, byrow=TRUE))
 ###also starts with a common letter
 
 
-#detect the words that include capital letter
+#detect the words that include a capital letter
 cap_bool <- a==a_low
 #find these words' indexes
 cap_index <- grep(FALSE,cap_bool)
