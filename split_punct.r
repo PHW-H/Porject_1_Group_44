@@ -1,10 +1,12 @@
 setwd("C:/Users/pancr/OneDrive/Documents/R/Porject_1_Group_44")
+#setwd("C:/Users/Tutku/Documents/2021-1/statistical_programming/Project_1_Group_44")
 a <- scan("1581-0.txt",what="character",skip=156)
 n <- length(a)
 a <- a[-((n-2909):n)] ## strip license
 
-#assign a value to m
-m <- 1000
+
+###split vector a such that each punctuation mark and word is a different element
+
 
 # find words containting
 punctuation_marks <- c(",",";","!",":","\\?","\\.")
@@ -22,7 +24,7 @@ for(i in 1:6) {# find and seperate the 6 different characters one by one
         #create empty string able to contain all of the string after the speration.
         ns <- rep("",2*lc+n)
         
-        # determin the location of split words
+        # determine the location of split words
         # three places are reserved for every interpunction mark
         # one for the text connected to the right and left of the punctuations mark
         # and one for the puncutation mark it self
@@ -74,17 +76,32 @@ for(i in 1:6) {# find and seperate the 6 different characters one by one
 a <- a[a != ""]
 return(a)}
 
-#part question 6
+a <- split_punct(a)
 
-a_low <- tolower(a) #lowers capital letters in words
-unique_words <- unique(a_low) #obtains unique words in a
-index_vector <- match(a_low,unique_words) #creates a vector length of a which indicates the word's index in unique_words
-freq <- tabulate(index_vector) #creates a vector length of b where each value corresponds to the frequency of the word with the same index in b
 
-th <- 1 #initializing the threshold value to retain 1000 words
-ncw <- length(unique_words) #initializing the number of common words with the given threshold value
-desired_word_count <- 1000 #as requested in the Practical 1 document
+###create a vector b which includes the most common ~1000 words occurring in vector a
 
+
+#lower capital letters in words
+a_low <- tolower(a) 
+#retrieve unique words in a
+unique_words <- unique(a_low) 
+#create a vector length of a which indicates the word's index in unique_words
+index_vector <- match(a_low,unique_words) 
+#create a vector length of b where each value corresponds to the frequency of the word with the same index in b
+freq <- tabulate(index_vector) 
+
+#initialize the threshold value to retain 1000 words
+th <- 1
+#initialize the number of common words with the given threshold value
+ncw <- length(unique_words) 
+#set value to 1000 as requested in the Practical 1 document
+desired_word_count <- 1000
+
+#a loop searching for a lower bound (threshold) on word frequencies which will obtain desired number of common words
+#ends up with 2 values that approaches to the desired word count
+#one value will be greater than desired_word_count stored as p_ncw (previously calculated number of common words)
+#the other one will be less than desired_word_count stored as ncw
 while (ncw >= desired_word_count) {
   p_th <- th
   th <- th + 1
@@ -92,6 +109,9 @@ while (ncw >= desired_word_count) {
   ncw <- sum(freq >= th)
 }
 
+#decides which value is closer to the desired word count and assigns threshold and m variables accordingly
+#if both values are equally distant to the desired word count favors the smaller value
+#e.g. p_ncw=1005 and p_th=90, and ncw_995 and th=91 where desired_word_count is 1000, it will choose the former.
 if (desired_word_count - ncw < p_ncw - desired_word_count) {
   m <- ncw
   threshold <- th
@@ -100,40 +120,86 @@ if (desired_word_count - ncw < p_ncw - desired_word_count) {
   threshold <- p_th
 }
 
+#create a vector b such that it includes the words which occurred more than or equal to the threshold value 
 b <- unique_words[which(freq >= threshold)]
 
-#question 7
+
+###create matrix A such that A(i,j) is the estimated probability of word j coming after word i
+
+
+#find index values of elements in a according to b, if not exists in b assigns value NA
 a_index <- match(a_low, b)
-column_matrix <- cbind(a_index[-length(a_index)],a_index[-1])
+#create a two-column matrix where the first column is transpose of a_index vector except the last element
+#the second column is the transpose of a_index vector except the first element
+column_matrix <- cbind(a_index[-length(a_index)],a_index[-1]) 
+#find the rows where both values are a number, i.e where there is no NA value in the row
+#these rows shows the common word pairs
 pair_index <- which(!is.na(rowSums(column_matrix)))
+#create word_pairs matrix excluding rows with NA values
 word_pairs <- column_matrix[pair_index,]
 
-m <- length(b)
-
-A <- matrix(0,m,m) # m is the number of common words aka length b
+#create an A matrix m by m where m is the number of commond words i.e. length(b)
+A <- matrix(0,m,m) 
+#fill A(i,j) matrix such that each A(i,j) value is the number of times the jth common word follows ith common word
+#do this by looping over each row of word_pairs and adding 1 to A(i,j)
+#where i=the first element of the row and j=the second element of the row
 for (count in 1:nrow(word_pairs)){
   i <- word_pairs[count,1]
   j <- word_pairs[count,2]
   A[i,j] <- A[i,j]+1
 }
-A <- t(apply(A, 1, function(x)(x/sum(x)))) 
-A <- gsub(NaN,1/length(b),A)
-A <- t(matrix(A, ncol=length(b), byrow=TRUE))
 
-#question 8
-prev_word_index <-sample(1:length(b),1)
+#standardize each row of A by dividing each value by the row sum
+A <- t(apply(A, 1, function(x)(x/sum(x)))) 
+#there might be some rows whose row sum is 0
+#this means none of the common words follows the word corresponding to the row, dividing values by zero results in NaN value
+#in this case all of the common words are equally likely to occur after that word
+#so replace NaN values with 1/length(b)
+A <- gsub(NaN,1/m,A)
+#previous function turns A into a vector, so turn A into matrix form again
+A <- t(matrix(A, ncol=m, byrow=TRUE))
+
+
+###update vector b such that common words that most often start with a capital letter in the main text 
+###also starts with a common letter
+
+
+#detect the words that include a capital letter
+cap_bool <- a==a_low
+#find these words' indexes
+cap_index <- grep(FALSE,cap_bool)
+#match words that include a capital letter with common word array b
+unique_cap_index <- match(a_low[cap_index], b)
+#create a vector which shows the frequency of a common word occurring with a capital letter
+cap_freq <- tabulate(unique_cap_index)
+#since some common words may never occur with a capital letter, fill the last part of the cap_freq vector with zeros
+#until it comes to the length of common words vector b
+cap_freq <- c(cap_freq, rep(0, length(b)-length(cap_freq)))
+#find the frequency of common words in b
+common_freq <- freq[freq >= threshold]
+#find a common word's ratio of its frequency with a capital letter over its total frequency 
+cap_prob <- cap_freq/common_freq
+#make the first letter of the common word capital, if its ratio is greater than or equal to 0.5
+substr(b[which(cap_prob>=0.5)], 1, 1) <- toupper(substr(b[which(cap_prob>=0.5)], 1, 1))
+
+
+###form a 50-element text including punctuation marks based on the estimate probability matrix A
+
+
+#randomly choose the starting words index out of m common words
+prev_word_index <-sample(1:m,1)
+#assign this value as the first element of end_text_index
 end_text_index <- c(prev_word_index)
 
+#create a 50-element vector called end_text_index 
+#run the loop from 2 to 50 since the first element is already decided
+#decide on the next element one by one according to the previous word's corresponding row in A matrix
+#where each row in A matrix shows the estimated probabilities of each of the other common words following it
 for (temp in 2:50){
-  chosen_word_index <- sample(1:length(b),1,prob=A[prev_word_index,])
+  chosen_word_index <- sample(1:m,1,prob=A[prev_word_index,])
   end_text_index <- c(end_text_index, chosen_word_index)
   prev_word_index <- chosen_word_index
 }
 
+#print out the corresponding 50 words in common vector b 
 cat(b[end_text_index])
-
-dif <- a==a_low
-loc_cap <- grep(FALSE,dif)
-cap_words <- a_low[dif]
-index_cap_vector <- match(a_low,cap_words)
-freq_cap <- tabulate(index_cap_vector)
