@@ -1,5 +1,8 @@
-#setwd("C:/Users/pancr/OneDrive/Documents/R/Porject_1_Group_44")
-#setwd("C:/Users/Tutku/Documents/2021-1/statistical_programming/Project_1_Group_44")
+# Pancras Hogendoorn, s2230313
+# Tutku Cinkilic, s2259604
+# Rija Zafar, s2258724
+
+setwd("put/your/local/repo/location/here")
 a <- scan("1581-0.txt",what="character",skip=156)
 n <- length(a)
 a <- a[-((n-2909):n)] ## strip license
@@ -203,4 +206,3 @@ for (temp in 2:50){
 
 #print out the corresponding 50 words in common vector b 
 cat(b[end_text_index])
-
